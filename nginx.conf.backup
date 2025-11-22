@@ -1,0 +1,55 @@
+# ==========================================
+# 1. HTTP 块：负责将所有 80 端口流量重定向到 HTTPS
+# ==========================================
+server {
+    listen 80;
+    server_name woodland-mango.click www.woodland-mango.click;
+
+    # 强制跳转到 HTTPS (比 if 写法更高效)
+    return 301 https://$host$request_uri;
+}
+
+# ==========================================
+# 2. HTTPS 块：真正的网站服务
+# ==========================================
+server {
+    listen 443 ssl;
+    server_name woodland-mango.click www.woodland-mango.click;
+
+    # 网站根目录
+    root /var/www/woodland/dist;
+    index index.html;
+
+    # SSL 证书配置
+    ssl_certificate /etc/letsencrypt/live/woodland-mango.click/fullchain.pem; 
+    ssl_certificate_key /etc/letsencrypt/live/woodland-mango.click/privkey.pem; 
+    include /etc/letsencrypt/options-ssl-nginx.conf; 
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; 
+
+    # 开启 Gzip 压缩
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # SPA 应用路由配置
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+# Gemini API 反向代理
+    location /api/gemini/ {
+    rewrite ^/api/gemini/(.*) /$1 break;
+    proxy_pass https://generativelanguage.googleapis.com;
+    proxy_ssl_server_name on;
+    proxy_set_header Host generativelanguage.googleapis.com;
+    proxy_set_header Connection "";
+    proxy_hide_header Access-Control-Allow-Origin;
+    add_header Access-Control-Allow-Origin *;
+    add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
+    add_header Access-Control-Allow-Headers "Content-Type, Authorization";
+    if ($request_method = 'OPTIONS') {
+        return 204;
+    }
+}
+
+
+}

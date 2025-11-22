@@ -1,0 +1,22 @@
+/* src/index.css
+  由于我们在 index.html 中使用了 Tailwind CDN，这里只需要基本的重置。
+  这一文件主要为了满足 main.jsx 的引用依赖。
+*/
+
+:root {
+  font-family: serif; /* 配合林地的主题 */
+  line-height: 1.5;
+  font-weight: 400;
+  
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #0c0a09; /* stone-950 fallback */
+}
