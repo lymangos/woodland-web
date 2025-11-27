@@ -41,18 +41,18 @@
 
 ```mermaid
 graph TD
-    User(用户 User) --> CF[Cloudflare DNS]
-    CF --> WAF[雷池 SafeLine WAF]
-    WAF -- 流量清洗 --> Nginx[Nginx Web Server]
+    User("用户 (User)") --> CF["Cloudflare DNS"]
+    CF --> WAF["雷池 SafeLine WAF"]
+    WAF -- "流量清洗" --> Nginx["Nginx Web Server"]
     
-    subgraph Server_Internal [Vultr Linux Server]
-        Nginx --> Static[静态资源 (Dist)]
-        Nginx -- 反向代理 --> Gemini[Google Gemini API]
-        WAF --> Umami[Umami 统计服务]
+    subgraph Server_Internal ["Vultr Linux Server"]
+        Nginx --> Static["静态资源 (Dist)"]
+        Nginx -- "反向代理" --> Gemini["Google Gemini API"]
+        WAF --> Umami["Umami 统计服务"]
     end
     
-    Static -.-> COS[腾讯云 COS (图片存储)]
-    Github[GitHub Actions] -- CI/CD 自动部署 --> Static
+    Static -.-> COS["腾讯云 COS (图片存储)"]
+    Github["GitHub Actions"] -- "CI/CD 自动部署" --> Static
 ```
 
 ### 🛠️ 技术栈 (Tech Stack)
