@@ -1,0 +1,45 @@
+name: Deploy to Vultr
+
+# 触发条件：当 main 分支有代码 push 时
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest  # 使用 GitHub 的 Ubuntu 虚拟环境
+
+    steps:
+      # 1. 把代码拉取下来
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. 安装 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 3. 安装依赖
+      - name: Install Dependencies
+        run: npm install
+
+      # 4. 执行打包 (生成 dist 文件夹)
+      - name: Build Project
+        run: npm run build
+
+      # 5. 把 dist 文件夹传送到服务器
+      - name: Deploy to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          # 源文件：GitHub 虚拟环境里的 dist 文件夹
+          source: "dist/*"
+          # 目标地址：你服务器上的项目目录
+          target: "/var/www/woodland"
+          # 移除路径前缀 (防止生成 /var/www/woodland/dist/dist)
+          strip_components: 0
