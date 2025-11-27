@@ -28,6 +28,9 @@ jobs:
       # 4. 执行打包 (生成 dist 文件夹)
       - name: Build Project
         run: npm run build
+        env:
+          # 冒号左边是代码里用的变量名，右边是 GitHub 里的 Secret 名字
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
       # 5. 把 dist 文件夹传送到服务器
       - name: Deploy to Server
