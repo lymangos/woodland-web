@@ -53,3 +53,98 @@ graph TD
     
     Static -.-> COS[腾讯云 COS (图片存储)]
     Github[GitHub Actions] -- CI/CD 自动部署 --> Static
+```
+
+### 🛠️ 技术栈 (Tech Stack)
+
+* **前端框架**: React 18 + Vite
+* **样式方案**: Tailwind CSS
+* **AI 模型**: Google Gemini Pro (via API)
+* **基础设施**: Vultr (Ubuntu)
+* **Web 服务器**: Nginx (Reverse Proxy & Static)
+* **安全网关**: SafeLine WAF (Community Edition)
+* **自动化运维**: GitHub Actions + Docker Compose
+
+---
+
+## 🚀 本地运行 (Local Development)
+
+如果你想在本地运行此项目：
+
+1.  **克隆仓库**
+    ```bash
+    git clone [https://github.com/lymangos/woodland-web.git](https://github.com/lymangos/woodland-web.git)
+    cd woodland-web
+    ```
+
+2.  **安装依赖**
+    ```bash
+    npm install
+    ```
+
+3.  **配置环境变量**
+    在根目录创建 `.env` 文件，填入你的 Google Gemini API Key：
+    ```env
+    VITE_GEMINI_API_KEY=你的_AIza_开头的Key
+    ```
+
+4.  **启动开发服务器**
+    ```bash
+    npm run dev
+    ```
+    打开浏览器访问 `http://localhost:5173`。
+
+---
+
+## 📦 部署与运维 (DevOps)
+
+本项目已实现 **CI/CD 自动化部署**。
+
+### 1. 自动发布流程
+无需手动登录服务器构建。
+* **操作**：本地代码修改 -> `git push`。
+* **流程**：GitHub Actions 自动触发 -> 构建 React 应用 -> 通过 SSH 将 `dist` 产物同步至服务器 -> 网站即刻更新。
+
+### 2. 服务器配置参考 (Nginx)
+Nginx 主要负责静态资源托管及 AI 接口的反向代理（解决跨域与 API 墙的问题）。
+
+```nginx
+server {
+    # 监听内部端口 (由 WAF 转发流量)
+    listen 62646 ssl http2;
+    server_name woodland-mango.click;
+
+    # SSL 与 Brotli 配置...
+
+    # 1. 静态资源
+    location / {
+        root /var/www/woodland/dist;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    # 2. AI 接口反向代理 (关键逻辑)
+    location /api/gemini/ {
+        rewrite ^/api/gemini/(.*) /$1 break;
+        proxy_pass [https://generativelanguage.googleapis.com](https://generativelanguage.googleapis.com);
+        proxy_ssl_server_name on;
+        
+        # 隐式注入 Key (可选安全增强)
+        # set $api_key "YOUR_SERVER_SIDE_KEY";
+    }
+}
+```
+
+### 3. 灾难恢复 (Backup)
+* **机制**：每日凌晨 04:00 自动打包全站数据。
+* **加密**：使用 GPG (RSA-4096) 加密归档。
+* **存储**：通过 Rclone 自动上传至 Google Drive 异地灾备。
+
+---
+
+## 📝 版权与许可
+
+**The Woodland** © 2025. Created by Lymangos.
+代码基于 [MIT License](LICENSE) 开源。文学内容与视觉设计保留所有权利。
+
+> "我在今年夏天到18岁。我已经存在了17年，有了17年的情感想法，体验经历。"
