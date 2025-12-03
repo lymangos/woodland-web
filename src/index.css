@@ -3,6 +3,12 @@
   这一文件主要为了满足 main.jsx 的引用依赖。
 */
 
+/* @ @ @
+  删除CDN的设置以加速网页 12/3/2025
+*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 :root {
   font-family: serif; /* 配合林地的主题 */
   line-height: 1.5;
