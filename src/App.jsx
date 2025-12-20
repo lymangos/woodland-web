@@ -29,7 +29,7 @@ const callGemini = async (prompt, systemInstruction = "") => {
   }
 
   // 🟢 使用动态构建的 URL
-  const url = `${API_BASE_URL}/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+  const url = `${API_BASE_URL}/v1beta/models/gemma-3-12b-it:generateContent?key=${apiKey}`;
   
   const payload = {
     contents: [{ parts: [{ text: prompt }] }],
