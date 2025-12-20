@@ -25,15 +25,21 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 const callGemini = async (prompt, systemInstruction = "") => {
   if (!apiKey) {
     console.warn("API Key is missing. Check App.jsx configuration.");
-    // 在预览环境中继续执行，以便演示 UI 交互，但在生产环境中这会导致请求失败（除非由后端完全代理鉴权）
+    // 在预览环境中继续执行...
   }
 
-  // 🟢 使用动态构建的 URL
+  // 🟢 使用动态构建的 URL (模型已正确修改为 gemma-3-12b-it)
   const url = `${API_BASE_URL}/v1beta/models/gemma-3-12b-it:generateContent?key=${apiKey}`;
   
+  // ✨ 关键修改：手动将【人设】合并到【提示词】中
+  // 因为 Gemma 3 不支持独立的 systemInstruction 字段，我们把它拼接到对话最前面
+  const finalPrompt = systemInstruction 
+    ? `System Instruction: ${systemInstruction}\n\nUser Request: ${prompt}` 
+    : prompt;
+
   const payload = {
-    contents: [{ parts: [{ text: prompt }] }],
-    systemInstruction: { parts: [{ text: systemInstruction }] }
+    contents: [{ parts: [{ text: finalPrompt }] }]
+    // ❌ 删除了导致报错的 systemInstruction 字段
   };
 
   try {
@@ -44,6 +50,9 @@ const callGemini = async (prompt, systemInstruction = "") => {
     });
 
     if (!response.ok) {
+      // 增加详细的报错打印，方便调试
+      const errorData = await response.json().catch(() => ({}));
+      console.error("API Error Detail:", errorData);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
